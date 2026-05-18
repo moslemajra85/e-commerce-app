@@ -1,0 +1,21 @@
+{
+  "name": "e-commerce-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/app/server.js",
+    "db:start": "docker compose up -d postgres redis",
+    "db:stop": "docker compose stop postgres redis",
+    "db:down": "docker compose down",
+    "db:health": "sh scripts/db-health.sh",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
