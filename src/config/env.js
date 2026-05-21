@@ -5,6 +5,7 @@ const DEFAULT_APP_NAME = 'E-commerce API';
 const DEFAULT_NODE_ENV = 'development';
 const DEFAULT_DATABASE_URL = 'postgresql://ecommerce_user:ecommerce_password@localhost:5432/ecommerce';
 const DEFAULT_REDIS_URL = 'redis://localhost:6379';
+const DEFAULT_JWT_SECRET = 'dev-only-ecommerce-api-jwt-secret-change-me';
 
 // Centralizes environment access so validation and defaults live in one place.
 // Other modules should import this config instead of reading process.env directly.
@@ -12,6 +13,7 @@ export function getEnvConfig(env = process.env) {
   return {
     appName: env.APP_NAME ?? DEFAULT_APP_NAME,
     databaseUrl: env.DATABASE_URL ?? DEFAULT_DATABASE_URL,
+    jwtSecret: parseJwtSecret(env.JWT_SECRET, env.NODE_ENV ?? DEFAULT_NODE_ENV),
     nodeEnv: env.NODE_ENV ?? DEFAULT_NODE_ENV,
     port: parsePort(env.PORT),
     redisUrl: env.REDIS_URL ?? DEFAULT_REDIS_URL,
@@ -29,4 +31,16 @@ function parsePort(value) {
   }
 
   return port;
+}
+
+function parseJwtSecret(value, nodeEnv) {
+  if (value) {
+    return value;
+  }
+
+  if (nodeEnv === 'production') {
+    throw new Error('JWT_SECRET is required in production');
+  }
+
+  return DEFAULT_JWT_SECRET;
 }

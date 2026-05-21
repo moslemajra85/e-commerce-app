@@ -5,17 +5,35 @@
   "type": "module",
   "scripts": {
     "dev": "node src/app/server.js",
-    "db:start": "docker compose up -d postgres redis",
+    "web:dev": "npm run dev --prefix web",
+    "web:build": "npm run build --prefix web",
+    "web:preview": "npm run preview --prefix web",
+    "db:up": "docker compose up -d postgres redis",
     "db:stop": "docker compose stop postgres redis",
     "db:down": "docker compose down",
+    "db:ps": "docker compose ps",
     "db:health": "sh scripts/db-health.sh",
-    "test": "node --test"
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset",
+    "db:seed": "node prisma/seed.js",
+    "db:studio": "prisma studio",
+    "test": "node --test --test-concurrency=1"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "argon2": "^0.44.0",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "jose": "^6.2.3",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.8.0"
   }
 }

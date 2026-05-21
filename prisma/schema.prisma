@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("customer")
+  status       String   @default("active")
+  carts        Cart[]
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Category {
+  id        String    @id
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Product {
+  id          String           @id
+  categoryId  String           @map("category_id")
+  category    Category         @relation(fields: [categoryId], references: [id])
+  name        String
+  slug        String           @unique
+  description String
+  status      String           @default("draft")
+  variants    ProductVariant[]
+  images      ProductImage[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@map("products")
+}
+
+model ProductVariant {
+  id         String     @id
+  productId  String     @map("product_id")
+  product    Product    @relation(fields: [productId], references: [id])
+  sku        String     @unique
+  name       String
+  priceCents Int        @map("price_cents")
+  currency   String
+  active     Boolean    @default(true)
+  inventory  Inventory?
+  cartItems  CartItem[]
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model ProductImage {
+  id        String   @id
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id])
+  url       String
+  altText   String   @map("alt_text")
+  position  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model Inventory {
+  variantId         String         @id @map("variant_id")
+  variant           ProductVariant @relation(fields: [variantId], references: [id])
+  quantityAvailable Int            @default(0) @map("quantity_available")
+  quantityReserved  Int            @default(0) @map("quantity_reserved")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  @@map("inventory")
+}
+
+model Cart {
+  id        String     @id
+  userId    String     @map("user_id")
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String     @default("active")
+  items     CartItem[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@index([userId, status])
+  @@map("carts")
+}
+
+model CartItem {
+  id        String         @id
+  cartId    String         @map("cart_id")
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String         @map("variant_id")
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  quantity  Int
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@unique([cartId, variantId])
+  @@index([cartId])
+  @@index([variantId])
+  @@map("cart_items")
+}

@@ -6,6 +6,7 @@ test('environment config reads values from env variables', () => {
   const config = getEnvConfig({
     APP_NAME: 'Test Shop API',
     DATABASE_URL: 'postgresql://test:test@localhost:15432/test_shop',
+    JWT_SECRET: 'test-jwt-secret',
     NODE_ENV: 'test',
     PORT: '4321',
     REDIS_URL: 'redis://localhost:16379',
@@ -14,6 +15,7 @@ test('environment config reads values from env variables', () => {
   assert.deepEqual(config, {
     appName: 'Test Shop API',
     databaseUrl: 'postgresql://test:test@localhost:15432/test_shop',
+    jwtSecret: 'test-jwt-secret',
     nodeEnv: 'test',
     port: 4321,
     redisUrl: 'redis://localhost:16379',
@@ -25,9 +27,17 @@ test('environment config provides safe defaults', () => {
 
   assert.equal(config.appName, 'E-commerce API');
   assert.equal(config.databaseUrl, 'postgresql://ecommerce_user:ecommerce_password@localhost:5432/ecommerce');
+  assert.equal(config.jwtSecret, 'dev-only-ecommerce-api-jwt-secret-change-me');
   assert.equal(config.nodeEnv, 'development');
   assert.equal(config.port, 3000);
   assert.equal(config.redisUrl, 'redis://localhost:6379');
+});
+
+test('environment config requires a JWT secret in production', () => {
+  assert.throws(
+    () => getEnvConfig({ NODE_ENV: 'production' }),
+    /JWT_SECRET is required in production/,
+  );
 });
 
 test('environment config rejects invalid ports', () => {

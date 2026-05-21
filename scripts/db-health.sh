@@ -6,7 +6,7 @@ docker compose ps
 
 echo ""
 echo "Postgres health:"
-docker compose exec -T postgres pg_isready -U "${POSTGRES_USER:-ecommerce_user}" -d "${POSTGRES_DB:-ecommerce}"
+docker compose exec -T postgres sh -c 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 
 echo ""
 echo "Redis health:"
